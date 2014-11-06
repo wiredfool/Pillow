@@ -30,6 +30,7 @@ ImagingUnsharpMask(Imaging imOut, Imaging imIn, float radius, int percent,
     int channel = 0;
     int channels = 0;
     int hasAlpha = 0;
+    int bytes = 0;
 
     int x = 0;
     int y = 0;
@@ -74,62 +75,53 @@ ImagingUnsharpMask(Imaging imOut, Imaging imIn, float radius, int percent,
     }
 
     for (y = 0; y < imIn->ysize; y++) {
-        if (channels == 1) {
-            lineIn8 = imIn->image8[y];
-            lineOut8 = imOut->image8[y];
-        } else {
-            lineIn = imIn->image32[y];
-            lineOut = imOut->image32[y];
-        }
-        for (x = 0; x < imIn->xsize; x++) {
-            newPixel = 0;
-            /* compare in/out pixels, apply sharpening */
-            if (channels == 1) {
-                diff =
-                    ((UINT8 *) & lineIn8[x])[0] -
-                    ((UINT8 *) & lineOut8[x])[0];
-                if (abs(diff) > threshold) {
-                    /* add the diff*percent to the original pixel */
-                    imOut->image8[y][x] =
-                        clip((((UINT8 *) & lineIn8[x])[0]) +
-                             (diff * ((float) percent) / 100.0));
-                } else {
-                    /* newPixel is the same as imIn */
-                    imOut->image8[y][x] = ((UINT8 *) & lineIn8[x])[0];
-                }
-            }
-
-            else {
-                for (channel = 0; channel < channels; channel++) {
-                    diff = (int) ((((UINT8 *) & lineIn[x])[channel]) -
-                                  (((UINT8 *) & lineOut[x])[channel]));
-                    if (abs(diff) > threshold) {
-                        /* add the diff*percent to the original pixel
-                           this may not work for little-endian systems, fix it! */
-                        newPixel =
-                            newPixel |
-                            clip((float) (((UINT8 *) & lineIn[x])[channel])
-                                 +
-                                 (diff *
-                                  (((float) percent /
-                                    100.0)))) << (channel * 8);
-                    } else {
-                        /* newPixel is the same as imIn
-                           this may not work for little-endian systems, fix it! */
-                        newPixel =
-                            newPixel | ((UINT8 *) & lineIn[x])[channel] <<
-                            (channel * 8);
-                    }
-                }
-                if (hasAlpha) {
-                    /* preserve the alpha channel
-                       this may not work for little-endian systems, fix it! */
-                    newPixel =
-                        newPixel | ((UINT8 *) & lineIn[x])[channel] << 24;
-                }
-                imOut->image32[y][x] = newPixel;
-            }
-        }
+	if (channels == 1) {
+	    lineIn8 = imIn->image8[y];
+	    lineOut8 = imOut->image8[y];
+	} else {
+	    /* march through each 32 bit pixel as a series of 4 UINT8
+	       for bigendian compatibility */
+	    lineIn8 = (UINT8 *)imIn->image32[y];
+	    lineOut8 = (UINT8 *)imOut->image32[y];
+	    bytes = imIn->xsize *4;
+	}
+	if (channels == 1) {
+	    for (x = 0; x < imIn->xsize; x++) {
+		/* compare in/out pixels, apply sharpening */
+		diff =
+		    ((UINT8 *) & lineIn8[x])[0] -
+		    ((UINT8 *) & lineOut8[x])[0];
+		if (abs(diff) > threshold) {
+		    /* add the diff*percent to the original pixel */
+		    imOut->image8[y][x] =
+			clip((((UINT8 *) & lineIn8[x])[0]) +
+			     (diff * ((float) percent) / 100.0));
+		} else {
+		    /* newPixel is the same as imIn */
+		    imOut->image8[y][x] = ((UINT8 *) & lineIn8[x])[0];
+		}
+	    }
+	} else {
+	    for (x = 0; x < bytes; x++) {
+		if (x%4 == 3){
+		    lineOut8[x] = lineIn8[x];
+		} else {
+		    /* compare in/out pixels, apply sharpening */
+		    diff = (int) ((((UINT8 *) & lineIn8[x])[0]) -
+				  (((UINT8 *) & lineOut8[x])[0]));
+		    if (abs(diff) > threshold) {
+			lineOut8[x] = 
+			    clip((float) (((UINT8 *) & lineIn8[x])[0])
+				 +
+				 (diff *
+				  (((float) percent /
+				    100.0))));
+		    } else {
+			lineOut8[x] = lineIn8[x];
+		    }
+		}
+	    }
+	}
     }
 
     ImagingSectionLeave(&cookie);
