@@ -5,6 +5,7 @@ from __future__ import print_function
 import sys
 import tempfile
 import os
+import subprocess
 
 if sys.version_info[:2] <= (2, 6):
     import unittest2 as unittest
@@ -239,5 +240,32 @@ if sys.platform == 'win32':
         IMCONVERT = os.path.join(IMCONVERT, 'convert.exe')
 else:
     IMCONVERT = 'convert'
+
+def lsb_release():
+    """ 
+    Read the name=value pairs from /etc/lsb-release
+    Some tests are known failures on specific versions/architectures
+    
+    Sample Response:
+    {'DISTRIB_ID':'Ubuntu',
+     'DISTRIB_RELEASE':'12.04',
+     'DISTRIB_CODENAME':'precise',
+     'DISTRIB_DESCRIPTION:'Ubuntu 12.04.5 LTS'}
+
+    :return: Dict of values, or empty dict
+    """
+    if not os.path.exists('/etc/lsb-release'):
+        return {}
+    try:
+        vals = {}
+        with open('/etc/lsb-release', 'r') as f:
+            for line in f:
+                try:
+                    k,v = line.split('=')
+                    vals[k] = v.strip().replace('"','')
+                except: pass
+        return vals
+    except:
+        return {}
 
 # End of file

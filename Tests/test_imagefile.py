@@ -1,6 +1,7 @@
-from helper import unittest, PillowTestCase, hopper, fromstring, tostring
+from helper import unittest, PillowTestCase, hopper, fromstring, tostring, lsb_release
 
 from io import BytesIO
+import sys
 
 from PIL import Image
 from PIL import ImageFile
@@ -54,15 +55,18 @@ class TestImageFile(PillowTestCase):
         self.assert_image_equal(*roundtrip("PCX"))
 
         if EpsImagePlugin.has_ghostscript():
-            im1, im2 = roundtrip("EPS")
             # This test fails on Ubuntu 12.04, PPC (Bigendian) It
             # appears to be a ghostscript 9.05 bug, since the
             # ghostscript rendering is wonky and the file is identical
             # to that written on ubuntu 12.04 x64 
             # md5sum: ba974835ff2d6f3f2fd0053a23521d4a
+            if not (sys.byteorder == 'big' and 
+                    lsb_release().get('DISTRIB_RELEASE') == '12.04'):
 
-            # EPS comes back in RGB:
-            self.assert_image_similar(im1, im2.convert('L'), 20)
+                im1, im2 = roundtrip("EPS")
+
+                # EPS comes back in RGB:
+                self.assert_image_similar(im1, im2.convert('L'), 20)
 
         if "jpeg_encoder" in codecs:
             im1, im2 = roundtrip("JPEG")  # lossy compression
