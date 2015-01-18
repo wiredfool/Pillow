@@ -104,6 +104,19 @@ class PillowTestCase(unittest.TestCase):
             " average pixel value difference %.4f > epsilon %.4f" % (
                 ave_diff, epsilon))
 
+    def diff(self, a, b):
+        """ return 127 + (a - b) as L or RGB """
+        from PIL import ImageMath, Image
+        def cvt(a,b):
+            grey = Image.new('L', a.size, (127))
+            return ImageMath.eval("convert(127 + (a - b), 'L')", a=a, b=b)
+        
+        if a.mode == 'L': 
+            return cvt(a,b)
+        if a.mode == 'RGB':
+            return Image.merge('RGB', [cvt(aa, bb) for (aa,bb) in zip(a.split(), b.split())])
+
+
     def assert_warning(self, warn_class, func):
         import warnings
 
