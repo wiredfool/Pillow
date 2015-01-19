@@ -17,6 +17,7 @@ import sys
 from distutils.command.build_ext import build_ext
 from distutils import sysconfig
 from setuptools import Extension, setup, find_packages
+from setuptools.command.install import install
 
 # monkey patch import hook. Even though flake8 says it's not used, it is.
 # comment this out to disable multi threaded builds.
@@ -87,6 +88,15 @@ try:
 except (ImportError, OSError):
     # pypy emits an oserror
     _tkinter = None
+
+class pillow_install(install):
+
+    def do_egg_install(self):
+        # force install of headers. For some reason, they don't install with
+        # the standard setup tools, even though they're listed in the subcommands
+        install.do_egg_install(self)
+        if self.distribution.has_headers():
+            self.run_command('install_headers')
 
 
 NAME = 'Pillow'
@@ -746,7 +756,7 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         ],
-    cmdclass={"build_ext": pil_build_ext},
+    cmdclass={"build_ext": pil_build_ext, 'install':pillow_install},
     ext_modules=[Extension("PIL._imaging", ["_imaging.c"])],
     headers=["libImaging/Imaging.h"],
     include_package_data=True,
