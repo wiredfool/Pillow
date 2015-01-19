@@ -748,6 +748,7 @@ setup(
         ],
     cmdclass={"build_ext": pil_build_ext},
     ext_modules=[Extension("PIL._imaging", ["_imaging.c"])],
+    headers=["libImaging/Imaging.h"],
     include_package_data=True,
     packages=find_packages(),
     scripts=glob.glob("Scripts/pil*.py"),
