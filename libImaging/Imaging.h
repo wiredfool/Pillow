@@ -402,7 +402,12 @@ extern int ImagingGifEncode(Imaging im, ImagingCodecState state,
                             UINT8* buffer, int bytes);
 extern int ImagingHexDecode(Imaging im, ImagingCodecState state,
                             UINT8* buffer, int bytes);
-#ifdef  HAVE_LIBJPEG
+#ifdef	HAVE_LIBWEBP
+extern int ImagingWebPDecode(Imaging im, ImagingCodecState state,
+                             UINT8* buffer, int bytes);
+extern int ImagingWebPDecodeCleanup(ImagingCodecState state);
+#endif
+#ifdef	HAVE_LIBJPEG
 extern int ImagingJpegDecode(Imaging im, ImagingCodecState state,
                              UINT8* buffer, int bytes);
 extern int ImagingJpegDecodeCleanup(ImagingCodecState state);
