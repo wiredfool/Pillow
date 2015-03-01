@@ -84,5 +84,18 @@ class TestFileWebp(PillowTestCase):
     def test_WebPDecode_with_invalid_args(self):
         self.assertRaises(TypeError, _webp.WebPDecode)
 
+    def test_info_compression(self):
+        for name, compression in (
+            ('flower2'           , 'lossy'),
+            ('flower'            , 'lossy'),
+            ('hopper'            , 'lossy'),
+            ('lossless-no-vp8x'  , 'lossless'),
+            ('lossless-with-vp8x', 'lossless'),
+            ('transparent'       , 'lossy'),
+        ):
+            image = Image.open('Tests/images/%s.webp' % name)
+            self.assertEqual(image.info['compression'], compression)
+
+
 if __name__ == '__main__':
     unittest.main()
