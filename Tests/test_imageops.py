@@ -1,6 +1,6 @@
 from helper import unittest, PillowTestCase, hopper
 
-from PIL import ImageOps
+from PIL import ImageOps, Image
 
 
 class TestImageOps(PillowTestCase):
@@ -84,6 +84,58 @@ class TestImageOps(PillowTestCase):
         ImageOps.equalize(i.convert("P"))
         ImageOps.equalize(i.convert("RGB"))
 
+    def test_autocontrast_preserve_gradient(self):
+        from PIL import _imaging as core
+        gradient = Image.Image()._new(core.linear_gradient('L'))
+
+        # test with a grayscale gradient that extends to 0,255.
+        # Should be a noop.
+        out = ImageOps.autocontrast_preserve(gradient, 0)
+        self.assert_image_equal(gradient, out)
+
+        # cutoff the top and bottom
+        # autocontrast should make the first and list histogram entries equal
+        # and should be 10% of the image pixels (+-, because integers)
+        out = ImageOps.autocontrast_preserve(gradient, 10)
+        hist = out.histogram()
+        self.assertEqual(hist[0], hist[-1])
+        self.assertEqual(hist[-1], 256*round(256*0.10))
+
+        # in rgb
+        img = gradient.convert('RGB')
+        out = ImageOps.autocontrast_preserve(img, 0)
+        self.assert_image_equal(img, out)
+
+        # Gradient one channel
+        img = Image.merge('RGB', [gradient,
+                                  Image.new('L', (256,256), 127),
+                                  Image.new('L', (256,256), 127)])
+        out = ImageOps.autocontrast_preserve(img, 0)
+        self.assert_image_equal(img, out)
+
+
+
+    def test_autocontrast_preserve_onecolor(self):
+        def _test_one_color(color):
+            img = Image.new('RGB', (10,10), color)
+
+            # single color images shouldn't change
+            out = ImageOps.autocontrast_preserve(img, 0)
+            #remove when production
+            print (img.getpixel((0,0)),out.getpixel((0,0)))
+            self.assert_image_equal(img, out) # single color, no cutoff
+
+            # even if there is a cutoff
+            out = ImageOps.autocontrast_preserve(img, 10) # single color 10 cutoff
+            self.assert_image_equal(img, out)
+
+        #succeeding
+        _test_one_color((255,255,255))
+        _test_one_color((127,255,0))
+        #failing
+        _test_one_color((127,127,127))
+        _test_one_color((0,0,0))        
+        
 
 if __name__ == '__main__':
     unittest.main()
