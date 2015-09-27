@@ -182,21 +182,28 @@ class UnsharpMask(Filter):
         return image.unsharp_mask(self.radius, self.percent, self.threshold)
 
 class Sobel(Filter):
-
     """
-    Using the Sobeloperator to integrate perpendicular towards the direction of the derivative.
-    This is good for getting rid of disturbances.
+    See Wikipedia's entry on the `sobel operator`_ for an explanation.
+    
+    The Sobel computes an approximation of the gradient of the image
+    intensity function.  The result of the Sobel-Feldman operator is a
+    2-dimensional map of the gradient at each point. It can be
+    processed and viewed as though it is itself an image, with the
+    areas of high gradient (the likely edges) visible as white lines.
+
+    .. note: This operator works on individual channels. 
+
+    .. _sobel operator: https://en.wikipedia.org/wiki/Sobel_operator
     """
     name = "Sobel"
 
-    def __init__(self, size=3):
-        self.size = size
+    def __init__(self):
+        pass
 
-    def filter(self, image):
-        im1 = image.filter( SOBEL1 )
-        im2 = image.filter( SOBEL2 )
-
-        return image._new(core.blend(im1.im, im2.im, 0.5))
+    def filter(self, im_core):
+        im1 = im_core.filter(*SOBEL1().filterargs)
+        im2 = im_core.filter(*SOBEL2().filterargs)
+        return core.blend(im1.chop_invert(), im2.chop_invert(), 0.5)
 
 class BLUR(BuiltinFilter):
     name = "Blur"

@@ -33,7 +33,10 @@ class TestImageFilter(PillowTestCase):
         filter(ImageFilter.GaussianBlur(5))
         filter(ImageFilter.UnsharpMask)
         filter(ImageFilter.UnsharpMask(10))
-
+        filter(ImageFilter.SOBEL1)
+        filter(ImageFilter.SOBEL2)
+        filter(ImageFilter.Sobel)
+        
         self.assertRaises(TypeError, lambda: filter("hello"))
 
     def test_crash(self):
@@ -94,6 +97,14 @@ class TestImageFilter(PillowTestCase):
         self.assertEqual(rankfilter.size, 1)
         self.assertEqual(rankfilter.rank, 2)
 
+    def test_sobel(self):
+        # images from https://en.wikipedia.org/wiki/Sobel_operator
+        # Retrived 9/27/15
+        orig = Image.open('Tests/images/sobel_original.png').convert('L')
+        target = Image.open('Tests/images/sobel_processed.png').convert('L')
+
+        filtered = orig.filter(ImageFilter.Sobel)
+        self.assert_image_equal(filtered, target)
 
 if __name__ == '__main__':
     unittest.main()
