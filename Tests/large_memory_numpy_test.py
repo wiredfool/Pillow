@@ -38,6 +38,15 @@ class LargeMemoryNumpyTest(PillowTestCase):
         """failed prepatch"""
         self._write_png(XDIM, XDIM)
 
+    def test_1475(self):
+        """ issue #1475 """
+        self._write_png(36352, 18144)
+
+    def test_1475_b(self):
+        a = np.zeros((36352, 18144), dtype=np.float)
+        im = Image.fromarray(a, mode='F')
+    
+
 
 if __name__ == '__main__':
     unittest.main()
