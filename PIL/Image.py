@@ -552,6 +552,7 @@ class Image(object):
         except Exception as msg:
             logger.debug("Error closing: %s" % msg)
 
+        del self.im
         # Instead of simply setting to None, we're setting up a
         # deferred error that will better explain that the core image
         # object is gone.
