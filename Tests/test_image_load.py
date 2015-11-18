@@ -29,6 +29,12 @@ class TestImageLoad(PillowTestCase):
 
         self.assertRaises(OSError, lambda: os.fstat(fn))
 
+    def test_contextmanager_load(self):
+        # This should not error out on the unsafe_free_core call
+        with Image.open("Tests/images/hopper.gif") as im:
+            im.load()
+            self.assert_(im.im)
+
 if __name__ == '__main__':
     unittest.main()
 

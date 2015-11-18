@@ -547,12 +547,20 @@ class Image(object):
         had their file read and closed by the
         :py:meth:`~PIL.Image.Image.load` method.
         """
+
         try:
             self.fp.close()
         except Exception as msg:
             logger.debug("Error closing: %s" % msg)
 
-        del self.im
+        # Free the core image memory so that it's not hanging around
+        # waiting for gc or the actual deletion of the core imaging
+        # object.
+        if self.im is not None:
+            # See the unsafe?  Don't do anything with this object
+            # after freeing the core.
+            self.im.unsafe_free_core()
+
         # Instead of simply setting to None, we're setting up a
         # deferred error that will better explain that the core image
         # object is gone.

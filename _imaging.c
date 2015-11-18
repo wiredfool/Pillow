@@ -194,11 +194,32 @@ _dealloc(ImagingObject* imagep)
     printf("imaging %p deleted\n", imagep);
 #endif
 
-    if (imagep->access)
+    if (imagep->access) {
         ImagingAccessDelete(imagep->image, imagep->access);
+    }
     ImagingDelete(imagep->image);
     PyObject_Del(imagep);
 }
+
+static PyObject*
+_dealloc_core(ImagingObject* self, PyObject* args)
+{
+
+#ifdef VERBOSE
+    printf("dealloc_core %p \n", self);
+#endif
+
+    if (self->access) {
+        ImagingAccessDelete(self->image, self->access);
+        self->access = NULL;
+    }
+    ImagingDelete(self->image);
+    self->image = NULL;
+
+    return Py_None;
+}
+
+
 
 #define PyImaging_Check(op) (Py_TYPE(op) == &Imaging_Type)
 
@@ -3030,6 +3051,8 @@ static struct PyMethodDef methods[] = {
     {"convert_transparent", (PyCFunction)_convert_transparent, 1},
     {"copy", (PyCFunction)_copy, 1},
     {"copy2", (PyCFunction)_copy2, 1},
+    {"unsafe_free_core", (PyCFunction)_dealloc_core, 1},
+
 #ifdef WITH_CRACKCODE
     {"crackcode", (PyCFunction)_crackcode, 1},
 #endif
