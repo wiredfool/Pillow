@@ -103,7 +103,8 @@ class ImageFile(Image.Image):
                 KeyError,  # unsupported mode
                 EOFError,  # got header but not the first frame
                 struct.error) as v:
-            logger.exception("%s")
+            #Don't spam the log for things that are entirely expected exceptions
+            logger.debug("%s")
             raise SyntaxError(v)
 
         if not self.mode or self.size[0] <= 0:
