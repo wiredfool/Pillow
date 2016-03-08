@@ -3594,6 +3594,10 @@ init_imaging(void)
 {
     PyObject* m = Py_InitModule("_imaging", functions);
     setup_module(m);
+#ifdef __AFL_HAVE_MANUAL_CONTROL
+    __AFL_INIT();
+#endif
+
 }
 #endif
 
