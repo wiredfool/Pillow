@@ -559,6 +559,7 @@ static unsigned int* get_qtables_arrays(PyObject* qtables, int* qtablesLen) {
         Py_DECREF(tables);
         return NULL;
     }
+    /* malloc check ok, num_tables <4, DCTSIZE2 == 64 from jpeglib.h */
     qarrays = (unsigned int*) malloc(num_tables * DCTSIZE2 * sizeof(unsigned int));
     if (!qarrays) {
         Py_DECREF(tables);
@@ -634,6 +635,7 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     qarrays = get_qtables_arrays(qtables, &qtablesLen);
 
     if (extra && extra_size > 0) {
+        /* malloc check ok, length is from python parsearg */
         char* p = malloc(extra_size); // Freed in JpegEncode, Case 5
         if (!p)
             return PyErr_NoMemory();
@@ -643,6 +645,7 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
         extra = NULL;
 
     if (rawExif && rawExifLen > 0) {
+        /* malloc check ok, length is from python parsearg */
         char* pp = malloc(rawExifLen); // Freed in JpegEncode, Case 5
         if (!pp)
             return PyErr_NoMemory();
@@ -757,15 +760,16 @@ PyImaging_LibTiffEncoderNew(PyObject* self, PyObject* args)
                                             (ttag_t) PyInt_AsLong(key),
                                             PyBytes_AsString(value));
         } else if (PyTuple_Check(value)) {
-            int len,i;
+            Py_ssize_t len,i;
             float *floatav;
             int *intav;
             TRACE(("Setting from Tuple: %d \n", (int)PyInt_AsLong(key)));
-            len = (int)PyTuple_Size(value);
+            len = PyTuple_Size(value);
             if (len) {
                 if (PyInt_Check(PyTuple_GetItem(value,0))) {
-                    TRACE((" %d elements, setting as ints \n", len));
-                    intav = malloc(sizeof(int)*len);
+                    TRACE((" %d elements, setting as ints \n", (int)len));
+                    /* malloc check ok, calloc checks for overflow */
+                    intav = calloc(len, sizeof(int));
                     if (intav) {
                         for (i=0;i<len;i++) {
                             intav[i] = (int)PyInt_AsLong(PyTuple_GetItem(value,i));
@@ -776,8 +780,9 @@ PyImaging_LibTiffEncoderNew(PyObject* self, PyObject* args)
                         free(intav);
                     }
                 } else if (PyFloat_Check(PyTuple_GetItem(value,0))) {
-                    TRACE((" %d elements, setting as floats \n", len));
-                    floatav = malloc(sizeof(float)*len);
+                    TRACE((" %d elements, setting as floats \n", (int)len));
+                    /* malloc check ok, calloc checks for overflow */
+                    floatav = calloc(len, sizeof(float));
                     if (floatav) {
                         for (i=0;i<len;i++) {
                             floatav[i] = (float)PyFloat_AsDouble(PyTuple_GetItem(value,i));
