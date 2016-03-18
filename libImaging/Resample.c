@@ -147,15 +147,17 @@ ImagingResampleHorizontal(Imaging imIn, int xsize, int filter)
         return (Imaging) ImagingError_MemoryError();
 
     /* coefficient buffer */
-    kk = malloc(xsize * kmax * sizeof(float));
+    /* malloc check ok, overflow check above */
+    kk = calloc(xsize * kmax, sizeof(float));
     if ( ! kk)
         return (Imaging) ImagingError_MemoryError();
 
     // sizeof(int) should be greater than 0 as well
     if (xsize > SIZE_MAX / (2 * sizeof(int)))
         return (Imaging) ImagingError_MemoryError();
-
-    xbounds = malloc(xsize * 2 * sizeof(int));
+    
+    /* malloc check ok, overflow check above */
+    xbounds = calloc(xsize, 2 * sizeof(int));
     if ( ! xbounds) {
         free(kk);
         return (Imaging) ImagingError_MemoryError();
