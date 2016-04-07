@@ -40,3 +40,5 @@ deploy:
   bucket: pillow-nightly
   folder: win/{version}
   artifact: build
+after_build:
+  - ps: Get-ChildItem .\dist\*.egg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
