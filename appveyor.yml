@@ -29,5 +29,5 @@ test_script:
 matrix:
   fast_finish: true
 artifacts:
-- path: c:\pillow\dist\*
+- path: pillow\dist\*
   name: build
