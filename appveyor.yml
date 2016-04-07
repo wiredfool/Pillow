@@ -29,7 +29,7 @@ test_script:
 - '%PYTHON%\python.exe test-installed.py'
 matrix:
   fast_finish: true
-artifacts:
+artifact:
 - path: pillow\dist\*.egg
   name: build
 deploy:
@@ -40,5 +40,5 @@ deploy:
   bucket: pillow-nightly
   folder: win/{version}
   artifact: build
-after_build:
+after_test:
   - ps: Get-ChildItem .\dist\*.egg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
