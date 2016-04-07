@@ -4,7 +4,6 @@ init:
 - ECHO %PYTHON%
 environment:
   X64_EXT: -x64
-  BUILD_NUM: {build}
   matrix:
   - PYTHON: C:/Python27-x64
   - PYTHON: C:/Python34
@@ -41,6 +40,6 @@ deploy:
   secret_access_key:
     secure: KpFJ5pGNJBIfy0yNX0rC/K661aaf789Ey+f7sZ7NN50SdK8Iz5WoZSke7PpGdAGe
   bucket: pillow-nightly
-  folder: win/$(BUILD_NUM)/
+  folder: win/$(APPVEYOR_BUILD_NUMBER)/
   artifact: /.*egg/
 
