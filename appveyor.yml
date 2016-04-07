@@ -28,3 +28,6 @@ test_script:
 - '%PYTHON%\python.exe test-installed.py'
 matrix:
   fast_finish: true
+artifacts:
+- path: c:\pillow\dist\*
+  name: build
