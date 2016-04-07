@@ -29,7 +29,7 @@ test_script:
 - '%PYTHON%\python.exe test-installed.py'
 matrix:
   fast_finish: true
-artifact:
+artifacts:
 - path: pillow\dist\*.egg
   name: build
 deploy:
