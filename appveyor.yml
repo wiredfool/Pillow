@@ -38,7 +38,7 @@ deploy:
   secret_access_key:
     secure: KpFJ5pGNJBIfy0yNX0rC/K661aaf789Ey+f7sZ7NN50SdK8Iz5WoZSke7PpGdAGe
   bucket: pillow-nightly
-  folder: win/{version}
-  artifact: '*.egg'
+  folder: "win/${VERSION}"
+  artifact: "dist\*.egg"
 after_test:
   - ps: Get-ChildItem .\dist\*.egg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
