@@ -30,7 +30,7 @@ test_script:
 matrix:
   fast_finish: true
 artifacts:
-- path: pillow\dist\*
+- path: pillow\dist\*.egg
   name: build
 deploy:
   provider: S3
