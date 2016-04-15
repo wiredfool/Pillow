@@ -483,9 +483,7 @@ PyImaging_ZipEncoderNew(PyObject* self, PyObject* args)
                           &dictionary, &dictionary_size))
         return NULL;
 
-    /* Copy to avoid referencing Python's memory, but there's no mechanism to
-       free this memory later, so this function (and several others here)
-       leaks. */
+    /* Copy to avoid referencing Python's memory */
     if (dictionary && dictionary_size > 0) {
         /* malloc check ok, size comes from PyArg_ParseTuple */
         char* p = malloc(dictionary_size);
@@ -504,6 +502,7 @@ PyImaging_ZipEncoderNew(PyObject* self, PyObject* args)
         return NULL;
 
     encoder->encode = ImagingZipEncode;
+    encoder->cleanup = ImagingZipEncodeCleanup;
 
     if (rawmode[0] == 'P')
         /* disable filtering */
