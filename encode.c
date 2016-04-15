@@ -159,6 +159,7 @@ _encode_to_file(ImagingEncoderObject* encoder, PyObject* args)
         return NULL;
 
     /* Allocate an encoder buffer */
+    /* malloc check ok, either constant int, or checked by PyArg_ParseTuple */
     buf = (UINT8*) malloc(bufsize);
     if (!buf)
         return PyErr_NoMemory();
@@ -233,7 +234,11 @@ _setimage(ImagingEncoderObject* encoder, PyObject* args)
 
     /* Allocate memory buffer (if bits field is set) */
     if (state->bits > 0) {
+        if (state->xsize > ((SIZE_MAX / state->bits)-7)) {
+            return PyErr_NoMemory();
+        }
         state->bytes = (state->bits * state->xsize+7)/8;
+        /* malloc check ok, overflow checked above */
         state->buffer = (UINT8*) malloc(state->bytes);
         if (!state->buffer)
             return PyErr_NoMemory();
@@ -482,6 +487,7 @@ PyImaging_ZipEncoderNew(PyObject* self, PyObject* args)
        free this memory later, so this function (and several others here)
        leaks. */
     if (dictionary && dictionary_size > 0) {
+        /* malloc check ok, size comes from PyArg_ParseTuple */
         char* p = malloc(dictionary_size);
         if (!p)
             return PyErr_NoMemory();
