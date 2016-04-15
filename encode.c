@@ -637,6 +637,7 @@ PyImaging_JpegEncoderNew(PyObject* self, PyObject* args)
     if (get_packer(encoder, mode, rawmode) < 0)
         return NULL;
 
+    // Freed in JpegEncode, Case 5
     qarrays = get_qtables_arrays(qtables, &qtablesLen);
 
     if (extra && extra_size > 0) {
