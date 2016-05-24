@@ -34,6 +34,8 @@ artifacts:
   name: build
 after_test:
   - ps: Get-ChildItem .\dist\*.egg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+# if APPVEYOR_PROJECT_NAME == 'python-pillow'
+
 deploy:
   provider: S3
   access_key_id: AKIAIRAXC62ZNTVQJMOQ 
@@ -42,4 +44,5 @@ deploy:
   bucket: pillow-nightly
   folder: win/$(APPVEYOR_BUILD_NUMBER)/
   artifact: /.*egg/
-
+  on: 
+    branch: master
