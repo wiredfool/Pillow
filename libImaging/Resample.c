@@ -95,18 +95,20 @@ ImagingPrecompute(int inSize, int outSize, struct filter *filterp,
     kmax = (int) ceil(support) * 2 + 1;
 
     // check for overflow
-    if (outSize > SIZE_MAX / (kmax * sizeof(double)))
+    if (outSize > INT_MAX / (kmax * sizeof(double)))
         return 0;
 
     // sizeof(double) should be greater than 0 as well
-    if (outSize > SIZE_MAX / (2 * sizeof(double)))
+    if (outSize > INT_MAX / (2 * sizeof(double)))
         return 0;
 
     /* coefficient buffer */
+    /* malloc check ok, overflow checked above */
     kk = calloc(outSize * kmax, sizeof(double));
     if ( ! kk)
         return 0;
 
+    /* malloc check ok, overflow checked above */
     xbounds = calloc(outSize * 2, sizeof(int));
     if ( ! xbounds) {
         free(kk);
