@@ -56,8 +56,37 @@ class TestImageDraw(PillowTestCase):
         im = Image.open("Tests/images/chi.gif")
 
         draw = ImageDraw.Draw(im)
-        draw.line(((0, 0)), fill=(0, 0, 0))
+        draw.line(((0, 0), (0, 1)), fill=(0, 0, 0))
         del draw
+
+
+    def test_indexerror(self):
+        frame = Image.open("Tests/images/no.gif")
+        frameNo = 0
+        while True:
+            print ("Testing frame %s" %frameNo)
+            try:
+                frame.seek(frameNo)
+            except EOFError:
+                break
+            draw = ImageDraw.Draw(frame)
+
+            topLeft = (0, 0)
+            topRight = (frame.size[0] - 1, 0)
+            bottomLeft = (0, frame.size[1] - 1)
+            bottomRight = (frame.size[0] - 1, frame.size[1] - 1)
+
+            draw.line((topLeft, topRight),       fill=(255, 255, 255))
+            draw.line((topLeft, bottomLeft),     fill=(255, 255, 255))
+            draw.line((bottomLeft, bottomRight), fill=(255, 255, 255))
+            draw.line((topRight, bottomRight),   fill=(255, 255, 255))
+
+            frameNo += 1
+            #frame.show()
+            
+        outfile = self.tempfile('temp.gif')
+        frame.save(outfile, save_all=True)
+        
 
     def test_mode_mismatch(self):
         im = hopper("RGB").copy()

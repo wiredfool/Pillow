@@ -760,13 +760,16 @@ class Image(object):
             self.im.putpalette(*self.palette.getdata())
             self.palette.dirty = 0
             self.palette.mode = "RGB"
-            self.palette.rawmode = None
             if "transparency" in self.info:
                 if isinstance(self.info["transparency"], int):
                     self.im.putpalettealpha(self.info["transparency"], 0)
                 else:
                     self.im.putpalettealphas(self.info["transparency"])
                 self.palette.mode = "RGBA"
+            if self.palette.rawmode:
+                self.palette.palette = self.im.getpalette(self.palette.mode,
+                                                          '%s;L'%self.palette.mode)
+                self.palette.rawmode = None
 
         if self.im:
             if HAS_CFFI and USE_CFFI_ACCESS:

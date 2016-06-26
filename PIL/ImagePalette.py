@@ -38,6 +38,9 @@ class ImagePalette(object):
     def __init__(self, mode="RGB", palette=None, size=0):
         self.mode = mode
         self.rawmode = None  # if set, palette contains raw data
+        self.size = 0
+        if palette:
+            self.size = len(palette) // len(mode)
         self.palette = palette or bytearray(range(256))*len(self.mode)
         self.colors = {}
         self.dirty = None
@@ -46,7 +49,7 @@ class ImagePalette(object):
             raise ValueError("wrong palette size")
 
     def copy(self):
-        new = ImagePalette()
+        new = self.__class__()
 
         new.mode = self.mode
         new.rawmode = self.rawmode
@@ -56,6 +59,14 @@ class ImagePalette(object):
         new.dirty = self.dirty
 
         return new
+
+    def fillcolors(self):
+        for index in range(self.size):
+            color_ix = (self.palette[index],
+                        self.palette[index+256],
+                        self.palette[index+512])
+            if not color_ix in self.colors:
+                self.colors[color_ix] = index
 
     def getdata(self):
         """
@@ -99,6 +110,8 @@ class ImagePalette(object):
                 # allocate new color slot
                 if isinstance(self.palette, bytes):
                     self.palette = bytearray(self.palette)
+                if not self.colors:
+                    self.fillcolors()
                 index = len(self.colors)
                 if index >= 256:
                     raise ValueError("cannot allocate more than 256 colors")
@@ -110,6 +123,14 @@ class ImagePalette(object):
                 return index
         else:
             raise ValueError("unknown color specifier: %r" % color)
+
+    def indextocolor(self, index):
+        """ Given an index into the palette, return a color tuple """
+        if index >= 256:
+            raise ValueError("There are less than 256 entries in a palette")
+        return (self.palette[index],
+                self.palette[index+256],
+                self.palette[index+512])
 
     def save(self, fp):
         """Save palette to text file.
@@ -133,6 +154,23 @@ class ImagePalette(object):
         fp.close()
 
 
+class RawImagePalette(ImagePalette):
+
+    def getdata(self):
+        """
+        Get palette contents in format suitable # for the low-level
+        ``im.putpalette`` primitive.
+
+        .. warning:: This method is experimental.
+        """
+        return self.rawmode, self.palette
+
+
+    def tobytes(self): raise ValueError("Not supported for RawImagePalette")
+    def getcolor(self, color): raise ValueError("Not supported for RawImagePalette")
+    def save(self, fp): raise ValueError("Not supported for RawImagePalette")
+
+
 # --------------------------------------------------------------------
 # Internal
 
@@ -141,6 +179,7 @@ def raw(rawmode, data):
     palette.rawmode = rawmode
     palette.palette = data
     palette.dirty = 1
+    palette.size = len(data) // len(rawmode)
     return palette
 
 
