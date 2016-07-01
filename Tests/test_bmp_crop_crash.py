@@ -9,9 +9,9 @@ class TestBmpCropCrash(PillowTestCase):
     def _testone(self,f):
         print('testing %s for crop crash'%f)
         im = Image.open(os.path.join(base,f))
-        im2 = im.crop((1,1,10,10))
+        im = im.crop((1,1,10,10))
         # should not crash
-        im2.load()
+        im.load()
 
     def test_rgb(self):
         for f in ['rgb16.bmp', 'rgb24.bmp', 'rgb32.bmp']:
