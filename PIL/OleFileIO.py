@@ -260,6 +260,13 @@ import struct
 import array
 import os.path
 import datetime
+import warnings
+
+warnings.warn(
+    'PIL.OleFileIO is deprecated. Use the olefile Python package '
+    'instead. This module will be removed in a future version.',
+    DeprecationWarning
+)
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
 
