@@ -29,7 +29,7 @@ build_script:
 - '%PYTHON%\Scripts\pip.exe install pillow' 
 
 test_script:
-- "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\gflags.exe" /p /enable python.exe /full
+- '"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\gflags.exe" /p /enable python.exe /full'
 - cd c:\pillow
 - '%PYTHON%\Scripts\pip.exe install nose'
 - '%PYTHON%\python.exe test-installed.py -v -s'
