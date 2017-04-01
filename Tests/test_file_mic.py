@@ -1,6 +1,6 @@
 from helper import unittest, PillowTestCase, hopper
 
-from PIL import Image, MicImagePlugin
+from PIL import Image, MicImagePlugin, ImagePalette
 
 TEST_FILE = "Tests/images/hopper.mic"
 
@@ -14,8 +14,13 @@ class TestFileMic(PillowTestCase):
         self.assertEqual(im.size, (128, 128))
         self.assertEqual(im.format, "MIC")
 
+        lut = ImagePalette.make_gamma_lut(1/2.2)
+        im = Image.merge('RGBA', [chan.point(lut) for chan in im.split()])
+
         im2 = hopper("RGBA")
-        self.assert_image_similar(im, im2, 123.5)
+        self.assert_image_similar(im, im2, 10)
+        
+        
 
     def test_n_frames(self):
         im = Image.open(TEST_FILE)
