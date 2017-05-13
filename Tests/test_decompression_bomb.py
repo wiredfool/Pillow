@@ -54,5 +54,29 @@ class TestDecompressionCrop(PillowTestCase):
         self.assert_warning(Image.DecompressionBombWarning,
                             lambda: self.src.crop(box))    
 
+class TestDecompressionDisposeExtents(PillowTestCase):
+    def setUp(self):
+        self.src = Image.open('Tests/images/dispose_huge.gif')
+        Image.MAX_IMAGE_PIXELS = self.src.height * self.src.width
+        
+    def tearDown(self):
+        Image.MAX_IMAGE_PIXELS = ORIGINAL_LIMIT
+
+    def frames(self):
+        while True:
+            try:
+                self.src.seek(self.src.tell()+1)
+            except EOFError:
+                break
+            self.src.load()
+
+    def testDisposeExtents(self):
+        # Dispose can extend the extents, therefore we should have the
+        # same decompression bomb warnings on them.
+
+        self.assert_warning(Image.DecompressionBombWarning,
+                            self.frames)    
+
+
 if __name__ == '__main__':
     unittest.main()
