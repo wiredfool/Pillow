@@ -298,6 +298,22 @@ unpackL4R(UINT8* out, const UINT8* in, int pixels)
 }
 
 static void
+unpackL4N(UINT8* out, const UINT8* in, int pixels)
+{
+    /* nibbles (nibble order reversed, white is non-zero) */
+    while (pixels > 0) {
+        UINT8 byte = *in++;
+        byte = (( byte >> 4) & 0x0FU ) | (( byte << 4 ) & 0xF0U );
+        switch (pixels) {
+        default:    *out++ = ((byte >> 4) & 0x0FU) * 0x11U; byte <<= 4;
+        case 1:     *out++ = ((byte >> 4) & 0x0FU) * 0x11U;
+        }
+        pixels -= 2;
+    }
+}
+
+
+static void
 unpackL4IR(UINT8* out, const UINT8* in, int pixels)
 {
     /* nibbles (bit order reversed, white is zero) */
@@ -1179,6 +1195,7 @@ static struct {
     {"L",       "L;4I",         4,      unpackL4I},
     {"L",       "L;4R",         4,      unpackL4R},
     {"L",       "L;4IR",        4,      unpackL4IR},
+    {"L",       "L;4N",         4,      unpackL4N},
 
     {"L",       "L",            8,      copy1},
     {"L",       "L;I",          8,      unpackLI},
