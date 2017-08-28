@@ -162,6 +162,45 @@ pack1L(UINT8* out, const UINT8* in, int pixels)
 }
 
 static void
+packL4(UINT8* out, const UINT8* in, int pixels)
+{
+    /* nibbles */
+    while (pixels > 0) {
+        UINT8 byte = 0;
+
+        byte = *in++ & 0xF0U;
+        switch (pixels) {
+        default:    
+            *out++ = byte | ((*in++ >> 4) & 0x0FU);
+            break;
+        case 1: 
+            *out++ = byte;
+        }
+        pixels -= 2;
+    }
+}
+
+
+static void
+packL4N(UINT8* out, const UINT8* in, int pixels)
+{
+    /* nibbles (nibble order reversed) */
+    while (pixels > 0) {
+        UINT8 byte = 0;
+
+        byte = (*in++ >> 4) & 0x0FU;
+        switch (pixels) {
+        default: 
+            *out++ = byte | ((*in++) & 0xF0U);
+            break;
+        case 1: 
+            *out++ = byte;
+        }
+        pixels -= 2;
+    }
+}
+
+static void
 packP4(UINT8* out, const UINT8* in, int pixels)
 {
     while (pixels >= 2) {
@@ -508,6 +547,10 @@ static struct {
     {"1",       "1;R",          1,      pack1R},
     {"1",       "1;IR",         1,      pack1IR},
     {"1",       "L",            8,      pack1L},
+
+    /* L4 grayscale */
+    {"L",       "L;4",          4,      packL4},
+    {"L",       "L;4N",         4,      packL4N},
 
     /* greyscale */
     {"L",       "L",            8,      copy1},
