@@ -24,19 +24,19 @@ class TestFeatures(PillowTestCase):
                              features.check(feature))
 
     @unittest.skipUnless(HAVE_WEBP, True)
-    def check_webp_transparency(self):
+    def test_check_webp_transparency(self):
         self.assertEqual(features.check('transp_webp'),
                          not _webp.WebPDecoderBuggyAlpha())
         self.assertEqual(features.check('transp_webp'),
                          _webp.HAVE_TRANSPARENCY)
 
     @unittest.skipUnless(HAVE_WEBP, True)
-    def check_webp_mux(self):
+    def test_check_webp_mux(self):
         self.assertEqual(features.check('webp_mux'),
                          _webp.HAVE_WEBPMUX)
 
     @unittest.skipUnless(HAVE_WEBP, True)
-    def check_webp_anim(self):
+    def test_check_webp_anim(self):
         self.assertEqual(features.check('webp_anim'),
                          _webp.HAVE_WEBPANIM)
 
