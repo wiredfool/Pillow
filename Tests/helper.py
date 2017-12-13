@@ -14,11 +14,22 @@ logger = logging.getLogger(__name__)
 
 
 HAS_UPLOADER = False
-try:
-    import test_image_results
-    HAS_UPLOADER = True
-except ImportError:
-    pass
+
+if os.environ.get('SHOW_ERRORS', None):
+    # local img.show for errors. 
+    HAS_UPLOADER=True
+    class test_image_results:
+        @classmethod
+        def upload(self, a, b):
+            a.show()
+            b.show()
+else:
+    try:
+        import test_image_results
+        HAS_UPLOADER = True
+    except ImportError:
+        pass
+
 
 def convert_to_comparable(a, b):
     new_a, new_b = a, b
@@ -98,11 +109,18 @@ class PillowTestCase(unittest.TestCase):
                 try:
                     url = test_image_results.upload(a, b)
                     logger.error("Url for test images: %s" %url)
-                except:
+                except Exception as msg:
+                    print (msg)
                     pass
                     
             self.fail(msg or "got different content")
 
+    def assert_image_equal_tofile(self, a, filename, msg=None, mode=None):
+        with Image.open(filename) as img:
+            if mode:
+                img = img.convert(mode)
+            self.assert_image_equal(a, img, msg)
+            
     def assert_image_similar(self, a, b, epsilon, msg=None):
         epsilon = float(epsilon)
         self.assertEqual(
@@ -134,6 +152,12 @@ class PillowTestCase(unittest.TestCase):
                 except:
                     pass
             raise e
+
+    def assert_image_similar_tofile(self, a, filename, epsilon, msg=None, mode=None):
+        with Image.open(filename) as img:
+            if mode:
+                img = img.convert(mode)
+            self.assert_image_similar(a, img, epsilon, msg)
 
     def assert_warning(self, warn_class, func, *args, **kwargs):
         import warnings
