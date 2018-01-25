@@ -12,7 +12,7 @@ coveralls-lcov -v -n coverage.filtered.info > coverage.c.json
 coverage report
 pip install codecov
 pip install coveralls-merge
-coveralls-merge coverage.c.json
+coveralls-merge --strip coverage.c.json
 codecov
 
 if [ "$DOCKER" == "" ]; then
