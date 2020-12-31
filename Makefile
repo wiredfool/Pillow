@@ -118,17 +118,27 @@ lint-fix:
 
 depends/oss-fuzz:
 	git clone https://github.com/google/oss-fuzz.git depends/oss-fuzz
-	python depends/oss-fuzz/infra/helper.py pull_images
 
-build/.oss-fuzz-images:
+build/.oss-fuzz-base-images:
+	python depends/oss-fuzz/infra/helper.py pull_images
+	touch build/.oss-fuzz-base-images
+
+build/.oss-fuzz-images: build/.oss-fuzz-base-images
 	python depends/oss-fuzz/infra/helper.py build_image --no pillow
 	docker tag gcr.io/oss-fuzz/pillow:latest gcr.io/oss-fuzz/pillow:_base
 	touch build/.oss-fuzz-images
 
-.PHONY: pillow_fuzzer
-pillow_fuzzer: depends/oss-fuzz build/.oss-fuzz-images sdist
+build/.oss-fuzz-pillow-fuzzer: depends/oss-fuzz build/.oss-fuzz-images sdist
 	cp depends/oss-fuzz/projects/pillow/build.sh depends/local-fuzz
 	cp depends/oss-fuzz/projects/pillow/fuzz_pillow.py depends/local-fuzz
 	cp `ls -t dist/*.tar.gz | head` depends/local-fuzz/current.tgz
 	docker build -t gcr.io/oss-fuzz/pillow:latest depends/local-fuzz
 	python depends/oss-fuzz/infra/helper.py build_fuzzers --sanitizer=address pillow
+	touch build/.oss-fuzz-pillow-fuzzer
+
+.PHONY: pillow_fuzzer
+pillow_fuzzer: build/.oss-fuzz-pillow-fuzzer
+
+.PHONY: run-fuzzer
+run-fuzzer: build/.oss-fuzz-pillow-fuzzer
+	python depends/oss-fuzz/infra/helper.py run_fuzzer pillow fuzz_pillow --sanitizer=address
