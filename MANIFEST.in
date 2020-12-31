@@ -26,3 +26,5 @@ global-exclude .git*
 global-exclude *.pyc
 global-exclude *.so
 prune .ci
+prune depends/oss-fuzz
+exclude current.tgz

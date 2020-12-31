@@ -6,6 +6,7 @@ clean:
 	rm src/PIL/*.so || true
 	rm -r build || true
 	find . -name __pycache__ | xargs rm -r || true
+	-rm -rf depends/oss-fuzz
 
 .PHONY: coverage
 coverage:
@@ -114,3 +115,20 @@ lint:
 .PHONY: lint-fix
 lint-fix:
 	black --target-version py36 .
+
+depends/oss-fuzz:
+	git clone https://github.com/google/oss-fuzz.git depends/oss-fuzz
+	python depends/oss-fuzz/infra/helper.py pull_images
+
+build/.oss-fuzz-images:
+	python depends/oss-fuzz/infra/helper.py build_image --no pillow
+	docker tag gcr.io/oss-fuzz/pillow:latest gcr.io/oss-fuzz/pillow:_base
+	touch build/.oss-fuzz-images
+
+.PHONY: pillow_fuzzer
+pillow_fuzzer: depends/oss-fuzz build/.oss-fuzz-images sdist
+	cp depends/oss-fuzz/projects/pillow/build.sh depends/local-fuzz
+	cp depends/oss-fuzz/projects/pillow/fuzz_pillow.py depends/local-fuzz
+	cp `ls -t dist/*.tar.gz | head` depends/local-fuzz/current.tgz
+	docker build -t gcr.io/oss-fuzz/pillow:latest depends/local-fuzz
+	python depends/oss-fuzz/infra/helper.py build_fuzzers --sanitizer=address pillow
