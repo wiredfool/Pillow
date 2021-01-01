@@ -140,5 +140,8 @@ build/.oss-fuzz-pillow-fuzzer: depends/oss-fuzz build/.oss-fuzz-images sdist
 pillow_fuzzer: build/.oss-fuzz-pillow-fuzzer
 
 .PHONY: run-fuzzer
-run-fuzzer: build/.oss-fuzz-pillow-fuzzer
+run-fuzzer:
 	python depends/oss-fuzz/infra/helper.py run_fuzzer pillow fuzz_pillow --sanitizer=address
+
+fuzz-bash:
+	docker run -ti --rm gcr.io/oss-fuzz/pillow:latest bash
