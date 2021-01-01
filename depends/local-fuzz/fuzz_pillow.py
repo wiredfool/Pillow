@@ -36,6 +36,7 @@ def TestOneInput(data):
 def main():
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     warnings.filterwarnings("ignore")
+    warnings.simplefilter('error', Image.DecompressionBombWarning)
     atheris.Setup(sys.argv, TestOneInput, enable_python_coverage=True)
     atheris.Fuzz()
 
