@@ -17,7 +17,7 @@ coverage:
 
 .PHONY: doc
 doc:
-	python3 -c "import PIL" > /dev/null 2>&1 || python3 -m pip install .
+	python3 -c "import PIL" > /dev/null 2>&1 || python3 -m pip -v install .
 	$(MAKE) -C docs html
 
 .PHONY: doccheck
@@ -49,7 +49,7 @@ help:
 
 .PHONY: inplace
 inplace: clean
-	python3 -m pip install -e --global-option="build_ext" --global-option="--inplace" .
+	python3 -m pip -v install -e --global-option="build_ext" --global-option="--inplace" .
 
 .PHONY: install
 install:
@@ -67,14 +67,14 @@ debug:
 # for our stuff, kills optimization, and redirects to dev null so we
 # see any build failures.
 	make clean > /dev/null
-	CFLAGS='-g -O0' python3 -m pip install --global-option="build_ext" . > /dev/null
+	CFLAGS='-g -O0' python3 -m pip -v install --global-option="build_ext" . > /dev/null
 
 .PHONY: release-test
 release-test:
-	python3 -m pip install -e .[tests]
+	python3 -m pip -v install -e .[tests]
 	python3 selftest.py
 	python3 -m pytest Tests
-	python3 -m pip install .
+	python3 -m pip -v install .
 	-rm dist/*.egg
 	-rmdir dist
 	python3 -m pytest -qq
