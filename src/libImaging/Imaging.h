@@ -121,8 +121,6 @@ struct ImagingMemoryInstance {
 #ifdef Py_GIL_DISABLED
     PyMutex mutex;
 #endif
-
-
 };
 
 #define IMAGING_PIXEL_1(im, x, y) ((im)->image8[(y)][(x)])
