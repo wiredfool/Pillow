@@ -196,12 +196,11 @@ typedef struct ImagingMemoryArena {
     int stats_reallocated_blocks; /* Number of blocks which were actually reallocated
                                      after retrieving */
     int stats_freed_blocks;       /* Number of freed blocks */
-    int use_block_allocator;      /* don't use arena, use block allocator */
-#ifdef Py_GIL_DISABLED
-    PyMutex mutex;
-#endif
 #ifdef IMAGING_TLS
     int index; /* Index of the arena in the global array. */
+#endif
+#ifdef Py_GIL_DISABLED
+    PyMutex mutex;
 #endif
 } *ImagingMemoryArena;
 
@@ -242,7 +241,9 @@ ImagingMemorySetBlocksMax(ImagingMemoryArena arena, int blocks_max);
 extern void
 ImagingMemoryClearCache(ImagingMemoryArena arena, int new_size);
 extern void
-ImagingMemorySetBlockAllocator(ImagingMemoryArena arena, int use_block_allocator);
+ImagingMemorySetBlockAllocator(int use_block_allocator);
+extern int
+ImagingMemoryGetBlockAllocator();
 
 extern Imaging
 ImagingNew(const char *mode, int xsize, int ysize);

@@ -402,7 +402,6 @@ struct ImagingMemoryArena ImagingDefaultArena = {
     0,
     0,
     0,  // Stats
-    0,  // use_block_allocator
 #ifdef Py_GIL_DISABLED
     /* On the very off-chance that someone is running free-threaded Python on a
      * platform that does not support thread-local storage, we need a mutex
@@ -459,9 +458,16 @@ ImagingMemorySetBlocksMax(ImagingMemoryArena arena, int blocks_max) {
     return 0;
 }
 
+static int ImagingMemoryUseBlockAllocator = 0;
+
 void
-ImagingMemorySetBlockAllocator(ImagingMemoryArena arena, int use_block_allocator) {
-    arena->use_block_allocator = use_block_allocator;
+ImagingMemorySetBlockAllocator(int use_block_allocator) {
+    ImagingMemoryUseBlockAllocator = use_block_allocator;
+}
+
+int
+ImagingMemoryGetBlockAllocator() {
+    return ImagingMemoryUseBlockAllocator;
 }
 
 void
@@ -747,7 +753,7 @@ ImagingNewInternal(const char *mode, int xsize, int ysize, int dirty) {
 
 Imaging
 ImagingNew(const char *mode, int xsize, int ysize) {
-    if (ImagingDefaultArena.use_block_allocator) {
+    if (ImagingMemoryUseBlockAllocator) {
         return ImagingNewBlock(mode, xsize, ysize);
     }
     return ImagingNewInternal(mode, xsize, ysize, 0);
@@ -755,7 +761,7 @@ ImagingNew(const char *mode, int xsize, int ysize) {
 
 Imaging
 ImagingNewDirty(const char *mode, int xsize, int ysize) {
-    if (ImagingDefaultArena.use_block_allocator) {
+    if (ImagingMemoryUseBlockAllocator) {
         return ImagingNewBlock(mode, xsize, ysize);
     }
     return ImagingNewInternal(mode, xsize, ysize, 1);

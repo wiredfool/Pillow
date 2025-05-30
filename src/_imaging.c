@@ -4117,13 +4117,13 @@ _set_use_block_allocator(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "i:set_use_block_allocator", &use_block_allocator)) {
         return NULL;
     }
-    ImagingMemorySetBlockAllocator(&ImagingDefaultArena, use_block_allocator);
+    ImagingMemorySetBlockAllocator(use_block_allocator);
     Py_RETURN_NONE;
 }
 
 static PyObject *
 _get_use_block_allocator(PyObject *self, PyObject *args) {
-    return PyLong_FromLong(ImagingDefaultArena.use_block_allocator);
+    return PyLong_FromLong(ImagingMemoryGetBlockAllocator());
 }
 
 static PyObject *
