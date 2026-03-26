@@ -261,6 +261,9 @@ _anim_encoder_add(PyObject *self, PyObject *args) {
     }
 
     im = (Imaging)PyCapsule_GetPointer(i0, IMAGING_MAGIC);
+    if (!im) {
+        return NULL;
+    }
 
     // Setup config for this frame
     if (!WebPConfigInit(&config)) {
@@ -608,6 +611,9 @@ WebPEncode_wrapper(PyObject *self, PyObject *args) {
     }
 
     im = (Imaging)PyCapsule_GetPointer(i0, IMAGING_MAGIC);
+    if (!im) {
+        return NULL;
+    }
 
     // Setup config for this frame
     if (!WebPConfigInit(&config)) {
